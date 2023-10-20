@@ -5,12 +5,8 @@ import { storeToRefs } from 'pinia'
 
 const email = ref('')
 const password = ref('')
-const { auth } = useAuthStore()
 const { loading } = storeToRefs(useAuthStore())
-
-const signUp = async () => {
-  await auth({ email: email.value, password: password.value }, 'signup')
-}
+const { signUp } = useAuthStore()
 </script>
 
 <template>
@@ -24,7 +20,14 @@ const signUp = async () => {
         <ElFormItem>
           <ElInput v-model="password" type="password" placeholder="Password" size="large" />
         </ElFormItem>
-        <ElButton type="primary" size="large" @click="signUp" :disabled="loading">Sign up</ElButton>
+        <ElButton
+          type="primary"
+          size="large"
+          @click="signUp({ email: email, password: password })"
+          :disabled="loading"
+        >
+          Sign up
+        </ElButton>
         <ElDivider />
         <div>
           Are you already registered?

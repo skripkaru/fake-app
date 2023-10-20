@@ -12,6 +12,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.1.0",
     "axios": "^1.5.1",
     "element-plus": "^2.4.1",
     "firebase": "^10.5.0",

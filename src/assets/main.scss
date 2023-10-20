@@ -1,1 +1,49 @@
 @import 'base.scss';
+
+.page {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 24px;
+
+  &__header {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+
+    @media (max-width: 576px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__body {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-content: start;
+    gap: 24px;
+  }
+
+  &__footer {
+    margin-left: auto;
+  }
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.el-dialog {
+  width: 100% !important;
+  max-width: 500px !important;
+}

@@ -1,8 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 import HomeView from '@/views/HomeView.vue'
 import SignUpView from '@/views/SignUpView.vue'
 import SignInView from '@/views/SignInView.vue'
+import PostsView from '@/views/PostsView.vue'
+import PostView from '@/views/PostView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,10 +13,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
-      meta: {
-        auth: true
-      }
+      component: HomeView
     },
     {
       path: '/signup',
@@ -24,12 +24,28 @@ const router = createRouter({
       path: '/signin',
       name: 'signin',
       component: SignInView
+    },
+    {
+      path: '/posts',
+      name: 'posts',
+      component: PostsView,
+      meta: {
+        auth: true
+      }
+    },
+    {
+      path: '/posts/:id',
+      name: 'post',
+      component: PostView,
+      meta: {
+        auth: true
+      }
     }
   ]
 })
 
 router.beforeEach((to, from, next) => {
-  const { userInfo } = useAuthStore()
+  const { userInfo } = storeToRefs(useAuthStore())
 
   if (to.meta.auth && !userInfo.token) {
     next('signin')

@@ -1,19 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
 
 const email = ref('')
 const password = ref('')
-const { auth } = useAuthStore()
 const { loading } = storeToRefs(useAuthStore())
-const router = useRouter()
-
-const signIn = async () => {
-  await auth({ email: email.value, password: password.value }, 'signin')
-  router.push('/')
-}
+const { signIn } = useAuthStore()
 </script>
 
 <template>
@@ -27,7 +20,14 @@ const signIn = async () => {
         <ElFormItem>
           <ElInput v-model="password" type="password" placeholder="Password" size="large" />
         </ElFormItem>
-        <ElButton type="primary" size="large" @click="signIn" :disabled="loading">Sign in</ElButton>
+        <ElButton
+          type="primary"
+          size="large"
+          @click="signIn({ email: email, password: password })"
+          :disabled="loading"
+        >
+          Sign in
+        </ElButton>
         <ElDivider />
         <div>
           Are you not registered yet?

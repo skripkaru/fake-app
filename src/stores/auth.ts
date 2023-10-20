@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import axiosApiInstance from '../api'
 import router from '@/router'
+import type { User } from '@/interfaces/user'
 
 const apiKey = import.meta.env.VITE_API_KEY_FIREBASE
 
@@ -14,15 +15,16 @@ export const useAuthStore = defineStore('auth', () => {
     email: '',
     userId: '',
     refreshToken: ''
-  })
+  } as User)
 
-  const auth = async (payload: any, type: string) => {
-    const stringUrl = type === 'signup' ? 'signUp' : 'signInWithPassword'
+  const getToken = computed(() => userInfo.value.token)
+
+  const signUp = async (payload: any) => {
     loading.value = true
     error.value = ''
     try {
       const response = await axiosApiInstance.post(
-        `https://identitytoolkit.googleapis.com/v1/accounts:${stringUrl}?key=${apiKey}`,
+        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`,
         {
           ...payload,
           returnSecureToken: true
@@ -52,6 +54,48 @@ export const useAuthStore = defineStore('auth', () => {
         case 'TOO_MANY_ATTEMPTS_TRY_LATER':
           error.value = 'Too many attempts try later not allowed'
           break
+        default:
+          error.value = 'Error'
+      }
+
+      ElMessage({
+        message: error.value,
+        type: 'error'
+      })
+
+      throw error.value
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const signIn = async (payload: any) => {
+    loading.value = true
+    error.value = ''
+    try {
+      const response = await axiosApiInstance.post(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
+        {
+          ...payload,
+          returnSecureToken: true
+        }
+      )
+      userInfo.value = {
+        token: response.data.idToken,
+        email: response.data.email,
+        userId: response.data.localId,
+        refreshToken: response.data.refreshToken
+      }
+      localStorage.setItem(
+        'userTokens',
+        JSON.stringify({
+          token: userInfo.value.token,
+          refreshToken: userInfo.value.refreshToken
+        })
+      )
+      router.push('/')
+    } catch (e: any) {
+      switch (e.response.data.error.message) {
         case 'EMAIL_NOT_FOUND':
           error.value = 'Email not found'
           break
@@ -90,7 +134,9 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     loading,
     userInfo,
-    auth,
+    getToken,
+    signUp,
+    signIn,
     logout
   }
 })
