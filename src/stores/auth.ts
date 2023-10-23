@@ -19,7 +19,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const getToken = computed(() => userInfo.value.token)
 
-  const signUp = async (payload: any) => {
+  const signUp = async (payload: { email: string; password: string }) => {
     loading.value = true
     error.value = ''
     try {
@@ -30,6 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
           returnSecureToken: true
         }
       )
+      console.log('response', response.data)
       userInfo.value = {
         token: response.data.idToken,
         email: response.data.email,
@@ -44,7 +45,8 @@ export const useAuthStore = defineStore('auth', () => {
         })
       )
     } catch (e: any) {
-      switch (e.response.data.error.message) {
+      console.log('e', e)
+      switch (e?.response?.data.error.message) {
         case 'EMAIL_EXISTS':
           error.value = 'Email exists'
           break
@@ -57,19 +59,17 @@ export const useAuthStore = defineStore('auth', () => {
         default:
           error.value = 'Error'
       }
-
       ElMessage({
         message: error.value,
         type: 'error'
       })
-
       throw error.value
     } finally {
       loading.value = false
     }
   }
 
-  const signIn = async (payload: any) => {
+  const signIn = async (payload: { email: string; password: string }) => {
     loading.value = true
     error.value = ''
     try {
@@ -80,6 +80,7 @@ export const useAuthStore = defineStore('auth', () => {
           returnSecureToken: true
         }
       )
+      console.log('response.data', response.data)
       userInfo.value = {
         token: response.data.idToken,
         email: response.data.email,
@@ -95,7 +96,8 @@ export const useAuthStore = defineStore('auth', () => {
       )
       router.push('/')
     } catch (e: any) {
-      switch (e.response.data.error.message) {
+      console.log('e', e)
+      switch (e?.response?.data.error.message) {
         case 'EMAIL_NOT_FOUND':
           error.value = 'Email not found'
           break
@@ -108,12 +110,10 @@ export const useAuthStore = defineStore('auth', () => {
         default:
           error.value = 'Error'
       }
-
       ElMessage({
         message: error.value,
         type: 'error'
       })
-
       throw error.value
     } finally {
       loading.value = false
@@ -131,12 +131,22 @@ export const useAuthStore = defineStore('auth', () => {
     router.push('/signin')
   }
 
+  const checkUser = () => {
+    const tokens = JSON.parse(localStorage.getItem('userTokens') as string)
+
+    if (tokens) {
+      userInfo.value.token = tokens.token
+      userInfo.value.refreshToken = tokens.refreshToken
+    }
+  }
+
   return {
     loading,
     userInfo,
     getToken,
     signUp,
     signIn,
-    logout
+    logout,
+    checkUser
   }
 })

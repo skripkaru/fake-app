@@ -13,17 +13,26 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
+      meta: {
+        auth: true
+      }
     },
     {
       path: '/signup',
       name: 'signup',
-      component: SignUpView
+      component: SignUpView,
+      meta: {
+        auth: false
+      }
     },
     {
       path: '/signin',
       name: 'signin',
-      component: SignInView
+      component: SignInView,
+      meta: {
+        auth: false
+      }
     },
     {
       path: '/posts',
@@ -45,10 +54,12 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const { userInfo } = storeToRefs(useAuthStore())
+  const { getToken } = storeToRefs(useAuthStore())
 
-  if (to.meta.auth && !userInfo.token) {
+  if (to.meta.auth && !getToken.value) {
     next('signin')
+  } else if (!to.meta.auth && getToken.value) {
+    next('/')
   } else {
     next()
   }

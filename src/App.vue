@@ -2,32 +2,28 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
+import { onMounted } from 'vue'
 
-const { userInfo, getToken } = storeToRefs(useAuthStore())
-const { logout } = useAuthStore()
+const { getToken } = storeToRefs(useAuthStore())
+const { logout, checkUser } = useAuthStore()
 
-const checkUser = () => {
-  const tokens = JSON.parse(localStorage.getItem('userTokens') as string)
-
-  if (tokens) {
-    userInfo.token = tokens.token
-    userInfo.refreshToken = tokens.refreshToken
-  }
-}
-
-checkUser()
+onMounted(() => {
+  checkUser()
+})
 </script>
 
 <template>
   <ElContainer class="layout">
     <ElHeader class="header">
       <RouterLink to="/" class="logo">Fake App</RouterLink>
-      <ElMenu mode="horizontal" :ellipsis="false" :router="true">
-        <ElMenuItem index="/posts" :route="{ name: 'posts' }"> Posts</ElMenuItem>
+      <ElMenu class="menu" mode="horizontal" :ellipsis="false" :router="true">
+        <ElMenuItem v-if="getToken" index="/posts" :route="{ name: 'posts' }"> Posts </ElMenuItem>
         <ElMenuItem v-if="getToken" index="/signin" :route="{ name: 'signin' }" @click="logout">
           Logout
         </ElMenuItem>
-        <ElMenuItem v-else index="/signin" :route="{ name: 'signin' }">Sign In</ElMenuItem>
+        <ElMenuItem v-if="!getToken" index="/signin" :route="{ name: 'signin' }">
+          Sign In
+        </ElMenuItem>
       </ElMenu>
     </ElHeader>
     <ElMain class="main">
@@ -54,6 +50,10 @@ checkUser()
   font-weight: 500;
   font-size: 1.5rem;
   text-decoration: none;
+}
+
+.menu {
+  border-bottom: none;
 }
 
 .main {
